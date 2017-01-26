@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}OC Plateforme{% endblock %}</title>
+        {% block stylesheets %}
+            <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container">
+            <div id="header" class="jumbotron">
+                <h1>Accueil</h1>
+                <p>
+                    Ce projet est propulsé par Symfony2,
+                    et construit grâce au MOOC OpenClassrooms et SensioLabs.
+                </p>
+                <p>
+                    <a class="btn btn-primary btn-lg" href="http://fr.openclassrooms.com/informatique/cours/developpez-votre-site-web-avec-le-framework-symfony2">
+                    Participer au MOOC »
+                    </a>
+                    <a class="btn btn-primary btn-lg" href="{{ path('oc_platform_home') }}">
+                    Nos Annonces »
+                    </a>
+                    <a class="btn btn-primary btn-lg" href="{{ path('core_contact') }}">
+                    Contact »
+                    </a>
+                </p>
+            </div>
+            {% for message in app.session.flashbag.get('notice') %}
+                <div class="alert alert-info alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Message flash : </strong>{{ message }}
+                </div>
+            {% endfor %}
+            <div class="row">
+                <div class="text-center">
+                    <h2>Les 3 dernières annonces</h2>
+                        {% for advert in listAdverts %}
+                        <div class="col-md-8 col-md-offset-2 well">
+                            <h2>{{ advert.title }}</h2>
+                            <i>Par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}</i>
+                            <br><br>
+                            <p>{{ advert.content }}</p>
+                            <hr>
+                            <a href="{{ path('oc_platform_view',{'id': advert.id}) }}" class="btn btn-default">
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                                Voir plus d'option
+                            </a>
+                        </div>
+                        {% else %}
+                            <p>Pas (encore !) d'annonces</p>
+                        {% endfor %}
+                </div>
+            </div>
+            <hr>
+            <footer>
+                <p>The sky's the limit © {{ 'now'|date('Y') }} and beyond.</p>
+            </footer>
+        </div>
+        {% block javascripts %}
+            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+            <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        {% endblock %}
+    </body>
+</html>
