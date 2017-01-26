@@ -1,7 +1,5 @@
 <?php
 
-// src/OC/PlatformBundle/Controller/AdvertController.php
-
 namespace OC\PlatformBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -81,6 +79,17 @@ class AdvertController extends Controller
             // Puis on redirige vers la page de visualisation de cettte annonce
             return $this->redirectToRoute('oc_platform_view', array('id' => 5));
         }
+
+        $antispam = $this->container->get('oc_platform.antispam');
+
+        $text = "...";
+
+        if($antispam->isSpam($text))
+        {
+            throw new \Exception("Votre message a été détecté comme spam !");
+            
+        }
+
 
         // Si on n'est pas en POST, alors on affiche le formulaire
         return $this->render('OCPlatformBundle:Advert:add.html.twig');

@@ -1,0 +1,15 @@
+version: '2'
+services:
+    symfony:
+        container_name: oc-platform
+        image: traskin/docker-symfony
+        volumes:
+            - .:/var/www/html
+        external_links:
+            - mysql:db
+        ports:
+            - "80:80"
+networks:
+    default:
+        external:
+            name: local.dev
