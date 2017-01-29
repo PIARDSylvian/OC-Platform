@@ -3,6 +3,9 @@
 {% block title %}Lecture d'une annonce - {{ parent() }}{% endblock %}
 
 {% block ocplatform_body %}
+    {% if advert.image is not null %}
+        <img src="{{ advert.image.url }}" alt="{{ advert.image.alt }}">
+    {% endif %}
     <h2>{{ advert.title }}</h2>
     <i>Par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}</i>
 
@@ -24,4 +27,13 @@
             Supprimer l'annonce
         </a>
     </p>
+    <h3>Les Candidatures</h3>
+    {% for application in listApplications %}
+        <div class="well">
+            <i>Par  {{ application.author }}, le {{ application.date|date('d/m/Y') }}</i><br><br>
+            {{ application.content }}
+        </div>
+    {% else %}
+            <p>Pas (encore !) de candidatures</p>
+    {% endfor %}
 {% endblock %}

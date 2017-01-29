@@ -6,6 +6,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Entity\Image;
+use OC\PlatformBundle\Entity\Application;
 
 class AdvertController extends Controller
 {
@@ -60,24 +62,60 @@ class AdvertController extends Controller
         if(null == $advert)
         {
             throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
-            
         }
 
+        // On récupère la liste des candidatures de cette annonce
+        $listApplications = $em->getRepository('OCPlatformBundle:Application')
+                            ->findBy(array('advert' =>$advert));
+
         return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
-            'advert' => $advert
+            'advert' => $advert,
+            'listApplications' => $listApplications
         ));
     }
 
     public function addAction(Request $request)
     {
-        // Création de l'entité
+        // Création de l'entité Advert
         $advert = new Advert();
         $advert->setTitle('Recherche développeur Symfony2.');
         $advert->setAuthor('Alexandre');
         $advert->setContent('Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…');
 
+        // Création de l'entité Image
+        $image = new Image();
+        $image->setUrl('http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg');
+        $image->setAlt('Job de rêve');
+
+        // On lie l'image à l'annonce
+        $advert->setImage($image);
+
+        // Création d'une première candidature
+        $application1 = new Application();
+        $application1->setAuthor('Marine');
+        $application1->setContent("J'ai toutes les qualités requises.");
+
+        // Création d'une deuxième candidature par exemple
+        $application2 = new Application();
+        $application2->setAuthor('Pierre');
+        $application2->setContent("Je suis très motivé.");
+
+        // On lie les candidatures à l'annonce
+        $application1->setAdvert($advert);
+        $application2->setAdvert($advert);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($advert);
+
+        // Étape 1 bis : si on n'avait pas défini le cascade={"persist"},
+        // on devrait persister à la main l'entité $image
+        // $em->persist($image)
+
+        // Étape 1 bis : pour cette relation pas de cascade lorsqu'on persiste Advert, car la relation est
+        // définie dans l'entité Application et non Advert. On doit donc tout persister à la main ici.
+        $em->persist($application1);
+        $em->persist($application2);
+        
         $em->flush();
 
         // La gestion d'un formulaire est particulière, mais l'idée est la suivante :
