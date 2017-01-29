@@ -1,0 +1,13 @@
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block title %}Modifier une annonce - {{ parent() }}{% endblock %}
+
+{% block ocplatform_body %}
+    <h2>Ajouter une annonce</h2>
+    {{ include("OCPlatformBundle:Advert:form.html.twig") }}
+    <p>
+        <a href="{{ path('oc_platform_home') }}" class="btn btn-default">
+            Accueil
+        </a>
+    </p>
+{% endblock %}

@@ -5,6 +5,7 @@ namespace OC\PlatformBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use OC\PlatformBundle\Entity\Advert;
 
 class AdvertController extends Controller
 {
@@ -52,14 +53,15 @@ class AdvertController extends Controller
 
     public function viewAction($id)
     {
-        // Ici, on récupérera l'annonce correspondante à l'id $id
-        $advert = array(
-            'title'   => 'Recherche développpeur Symfony2',
-            'id'      => $id,
-            'author'  => 'Alexandre',
-            'content' => 'Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…',
-            'date'    => new \Datetime()
-        );
+        $em = $this->getDoctrine()->getManager();
+        $repository = $em->getRepository('OCPlatformBundle:Advert');
+        $advert = $repository->find($id);
+
+        if(null == $advert)
+        {
+            throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+            
+        }
 
         return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
             'advert' => $advert
@@ -68,27 +70,38 @@ class AdvertController extends Controller
 
     public function addAction(Request $request)
     {
-        // La gestion d'un formulaire est particulière, mais l'idée est la suivante :
+        // Création de l'entité
+        $advert = new Advert();
+        $advert->setTitle('Recherche développeur Symfony2.');
+        $advert->setAuthor('Alexandre');
+        $advert->setContent('Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…');
 
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($advert);
+        $em->flush();
+
+        // La gestion d'un formulaire est particulière, mais l'idée est la suivante :
         // Si la requête est en POST, c'est que le visiteur a soumis le formulaire
         if ($request->isMethod('POST')) {
             // Ici, on s'occupera de la création et de la gestion du formulaire
 
             $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
 
-            // Puis on redirige vers la page de visualisation de cettte annonce
-            return $this->redirectToRoute('oc_platform_view', array('id' => 5));
+            return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+            // Advert étant maintenant enregistré en base de données grâce au flush(), 
+            // Doctrine2 lui a attribué un id ! On peut donc utiliser $advert->getId()  dans la génération de la route,
+            // et non un nombre fixe comme précédemment.
         }
 
-        $antispam = $this->container->get('oc_platform.antispam');
+        // $antispam = $this->container->get('oc_platform.antispam');
 
-        $text = "...";
+        // $text = "...";
 
-        if($antispam->isSpam($text))
-        {
-            throw new \Exception("Votre message a été détecté comme spam !");
+        // if($antispam->isSpam($text))
+        // {
+        //     throw new \Exception("Votre message a été détecté comme spam !");
             
-        }
+        // }
 
 
         // Si on n'est pas en POST, alors on affiche le formulaire
