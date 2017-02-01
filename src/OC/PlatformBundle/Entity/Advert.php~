@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="advert")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\AdvertRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Advert
 {
@@ -69,6 +70,11 @@ class Advert
      * @ORM\OneToMany(targetEntity="OC\PlatformBundle\Entity\Application", mappedBy="advert")
      */
     private $applications;
+
+    /**
+     * @ORM\Column(name="update_at",type="datetime", nullable=true)
+     */
+    private $updateAt;
 
     public function __construct()
     {
@@ -275,6 +281,7 @@ class Advert
     public function addApplication(\OC\PlatformBundle\Entity\Application $application)
     {
         $this->applications[] = $application;
+        $application->setAdvert($this);
 
         return $this;
     }
@@ -297,5 +304,10 @@ class Advert
     public function getApplications()
     {
         return $this->applications;
+    }
+
+    public function updateDate()
+    {
+        $this->setUpdateAt(new \Datetime());
     }
 }
